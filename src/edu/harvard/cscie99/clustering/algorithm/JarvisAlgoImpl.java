@@ -1,5 +1,6 @@
 package edu.harvard.cscie99.clustering.algorithm;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +11,8 @@ import edu.harvard.cscie99.clustering.result.ClusteringResult;
 
 public class JarvisAlgoImpl implements IClusterAlgo {
 
+	public final static int PRECISION = 1;
+	
 	@Override
 	public ClusteringResult cluster(double[][] data,
 			Map<String, String> clusterParams) {
@@ -20,6 +23,9 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 			final int commonNeighbors = Integer.valueOf(clusterParams.get("commonNeighbors")); // TODO check for exception
 			final String distanceMetric = clusterParams.get("distanceMetric"); //{"Euclidian"}
 			final int rows = data.length;
+			
+			
+			ClusteringResult results = new ClusteringResult(rows);
 			
 			// row index - cluster
 			List<ClusterJarvis> clusters = new ArrayList<ClusterJarvis>();
@@ -47,7 +53,8 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 					if (fromIdx!=toIdx){ // to a different point than itself. This distance is 0  
 						
 						// Check whether the distance was already calculate backwards
-						toFrom = distances.get(toIdx+"-"+fromIdx); 
+						//toFrom = distances.get(toIdx+"-"+fromIdx);
+						toFrom = null;
 						
 						// if not then calculate the distance
 						if (toFrom==null){
@@ -55,11 +62,14 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 							distances.put(fromIdx+"-"+toIdx, toFrom);
 						}
 						
+						// TODO change the BigDecimal object creation
 						// add the distance to the cluster neighbors
-						cluster.addNeighbor(toFrom, toIdx);
+						cluster.addCloseNeighbor(new BigDecimal(toFrom).setScale(PRECISION,BigDecimal.ROUND_HALF_UP).doubleValue(), toIdx);
 					}	
 				}
 				
+				// initialized the results collection.				
+				results.addClusterToLabel(0);
 			}
 			
 			for (int fromIdx=0; fromIdx<rows;fromIdx++){
@@ -67,24 +77,26 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 				
 				if (currentCluster.getStatus().equalsIgnoreCase(ClusterJarvis.STATUS_NOT_PROCESSED)){
 
+					currentCluster.sortClosestNeighbors();
 					// Just leave Z (numNeighbors) elements in the neighbor collection
-					currentCluster.setClosestNeighbors(ClusterJarvis.putFirstEntries(numNeighbors, currentCluster.getClosestNeighbors()));
+					currentCluster.setClosestNeighbors(ClusterJarvis.truncateCollection(numNeighbors, currentCluster.getClosestNeighbors()));
 					
 					for (int toIdx=0; toIdx<rows;toIdx++){
 						
 						if (fromIdx!=toIdx){ 
-							ClusterJarvis nextCluster =  clusters.get(fromIdx);
+							ClusterJarvis nextCluster =  clusters.get(toIdx);
 							
 							if (nextCluster.getStatus().equalsIgnoreCase(ClusterJarvis.STATUS_NOT_PROCESSED)){
 								
-								// Just leave the numNeighbors + 1 elements in the neighbor collection
-								nextCluster.setClosestNeighbors(ClusterJarvis.putFirstEntries(numNeighbors, nextCluster.getClosestNeighbors()));
+								nextCluster.sortClosestNeighbors();
+								// Just leave Z (numNeighbors) elements in the neighbor collection
+								nextCluster.setClosestNeighbors(ClusterJarvis.truncateCollection(numNeighbors, nextCluster.getClosestNeighbors()));
 								
 								// Get the rows from the current cluster
-								Collection<Integer> currentNeighborRows = currentCluster.getClosestNeighbors().values();
+								Collection<Integer> currentNeighborRows = currentCluster.getClosestNeighborsRowsId();
 								
 								// Get the rows from the next cluster
-								Collection<Integer> nextNeighborsRows = nextCluster.getClosestNeighbors().values();
+								Collection<Integer> nextNeighborsRows = nextCluster.getClosestNeighborsRowsId();
 								
 								// Check the contain each other Ids
 								if (currentNeighborRows.contains(nextCluster.getId()) && nextNeighborsRows.contains(currentCluster.getId())){
@@ -97,6 +109,7 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 										// They belong to same cluster
 										// Merge clusters (add all points from second cluster to first one)
 										currentCluster.addRows2Cluster(nextCluster.getClusterRows());
+										
 										// and mark the second cluster as PROCESSED
 										nextCluster.setStatus(ClusterJarvis.STATUS_MOVED);
 									}
@@ -104,25 +117,30 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 							}
 						}
 					}
+					
+					// Mark the rows with their Cluster ID in Results collection.
+					// Doing this here avoids an extra full (n) iteration later
+					for (Integer currentRow: currentCluster.getClusterRows()){
+						results.setClusterToLabelByIndex(currentRow ,currentCluster.getId()+1 );
+					}
+					
+					// Mark cluster as processed.
+					currentCluster.setStatus(ClusterJarvis.STATUS_PROCESSED);
 				}
-				
-				// Mark cluster as processed.
-				currentCluster.setStatus(ClusterJarvis.STATUS_PROCESSED);
 			}
 
 			
-			ClusteringResult results = new ClusteringResult(rows);
-			for (int fromIdx=0; fromIdx<rows;fromIdx++){
-				
-				ClusterJarvis currentCluster =  clusters.get(fromIdx);
-				
-				if (currentCluster.getStatus().equalsIgnoreCase(ClusterJarvis.STATUS_PROCESSED)){
-					
-					for (Integer currentRow: currentCluster.getClusterRows()){
-						results.addClusterToLabelByIndex(currentCluster.getId()+1, currentRow);
-					}
-				}
-			}	
+			
+//			for (int fromIdx=0; fromIdx<rows;fromIdx++){
+//				ClusterJarvis currentCluster =  clusters.get(fromIdx);
+//
+//				if (currentCluster.getStatus().equalsIgnoreCase(ClusterJarvis.STATUS_PROCESSED)){
+//				
+//					for (Integer currentRow: currentCluster.getClusterRows()){
+//						results.setClusterToLabelByIndex(currentRow ,currentCluster.getId()+1 );
+//					}
+//				}
+//			}	
 			
 			return results;
 		

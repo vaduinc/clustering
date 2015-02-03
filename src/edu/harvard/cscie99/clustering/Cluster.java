@@ -40,7 +40,7 @@ public class Cluster {
             
             //IClusterAlgo algo = new LeaderAlgoImpl();
             IClusterAlgo algo = new JarvisAlgoImpl();
-            ClusteringResult results = algo.cluster(reader.getRawMatrix(), clusterParams);
+            ClusteringResult results = algo.cluster(reader.getNormalizedMatrix() , clusterParams);
             
             int idx = 0;
             for (String label :rowHeaders){

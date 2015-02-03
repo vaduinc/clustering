@@ -1,6 +1,7 @@
 package edu.harvard.cscie99.clustering.algorithm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -18,7 +19,8 @@ public class ClusterJarvis {
 	static String STATUS_MOVED = "MOVED";
 	
 	private int id;
-	private SortedMap<Double,Integer> closestNeighbors ; 	//<distance, rowId>
+	private List<DistanceRow> closestNeighbors ; 	//<distance, rowId>
+	//private SortedMap<Double,Integer> closestNeighbors ; 	//<distance, rowId>
 	private List<Integer> clusterRows; 						// rows that belong to this cluster
 	private String status; 									// to know whether this cluster was already processed
 	
@@ -43,11 +45,23 @@ public class ClusterJarvis {
 	}
 	
 	
+	/**
+	 * TDOO description 
+	 * 
+	 * @param max
+	 * @param source
+	 * @return
+	 */
+	public static List<DistanceRow> truncateCollection(int max, List<DistanceRow> source) {
+		  return source.subList(0, max); 
+	}
+	
+	
 	public ClusterJarvis(int clusterId){
 		this.id = clusterId;
 		this.status = STATUS_NOT_PROCESSED;
 		this.clusterRows = new ArrayList<Integer>();
-		this.closestNeighbors = new TreeMap<Double,Integer>();
+		this.closestNeighbors = new ArrayList<DistanceRow>();
 		
 	}
 	
@@ -60,23 +74,47 @@ public class ClusterJarvis {
 		this.id = id;
 	}
 	
-	public SortedMap<Double,Integer> getClosestNeighbors() {
+	/**
+	 * TODO description
+	 * 
+	 * @return List<Integer>
+	 */
+	public List<Integer> getClosestNeighborsRowsId() {
+		
+		List<Integer> distRowsIDs = new ArrayList<Integer>(closestNeighbors.size());
+		
+		for(DistanceRow distanceRow: closestNeighbors){
+			distRowsIDs.add(distanceRow.getRowId());
+		}
+		
+		return distRowsIDs;
+	}
+		
+	
+	/**
+	 * TODO description
+	 */
+	public void sortClosestNeighbors(){
+		Collections.sort(closestNeighbors);
+	}
+	
+	
+	public List<DistanceRow> getClosestNeighbors() {
 		return closestNeighbors;
 	}
 	
-	public void setClosestNeighbors(SortedMap<Double,Integer> closestNeighbors) {
+	public void setClosestNeighbors(List<DistanceRow> closestNeighbors) {
 		this.closestNeighbors = closestNeighbors;
 	}
 	
-	public void addNeighbor(Double distance, Integer rowId){
-		this.closestNeighbors.put(distance, rowId);
+	public void addCloseNeighbor(Double distance, Integer rowId){
+		this.closestNeighbors.add(new DistanceRow(distance, rowId));
 	}
 	
 	public void addRow2Cluster(Integer rowIdx){
 		clusterRows.add(rowIdx);
 	}
 	
-	// TODO change to TreeSet.
 	public void addRows2Cluster(List<Integer> mergedRows){
 		clusterRows.addAll(mergedRows);
 	}

@@ -20,8 +20,8 @@ public class ClusteringResult {
 		rowCluster.add(clusterId);
 	}
 	
-	public void addClusterToLabelByIndex(Integer clusterId, int idx){
-		rowCluster.add(idx, clusterId);
+	public void setClusterToLabelByIndex(int idx, Integer clusterId ){
+		rowCluster.set(idx, clusterId);
 	}
 
 	public Integer getClusterByIdx(int idx){
