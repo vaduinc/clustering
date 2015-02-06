@@ -178,9 +178,66 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 	public ClusteringResult cluster(Map<String, BitSet> data,
 			Map<String, Object> clusterParams) {
 		
-		data = data;
+		final int numNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_NUM_NEIGH.value()).toString()); // TODO check for exception
+		final int commonNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_COMM_NEIGH.value()).toString()); // TODO check for exception
+		final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC); //{"Euclidian"}
+		final List<String> rowKeys = new ArrayList<String>(data.keySet());
+		final int rows = rowKeys.size();
+		
+		ClusteringResult results = new ClusteringResult(rows,rowKeys);
+		List<ClusterJarvis> clusters = new ArrayList<ClusterJarvis>();
 		
 		return null;
 	}
+	
+	
+	private void initializeAllNeighborsAndDistances(Map<String, BitSet> data,List<ClusterJarvis> clusters, ClusteringResult results) throws Exception{
+		
+		final int rows = data.size();
+		final List<String> rowKeys = new ArrayList<String>(data.keySet());
+		
+		/*
+		 * Distance { "From-To", distance}. Therefore, it is not
+		 * necessary to calculate the distance twice when calculating
+		 * distance between To-From
+		 */
+		Map<String,Integer> distances = new HashMap<String, Integer>();
+		Integer toFrom=0;
+
+		for (int fromIdx=0; fromIdx<rows;fromIdx++){
+		
+			ClusterJarvis cluster = new ClusterJarvis(fromIdx);
+			cluster.addRow2Cluster(fromIdx);
+			
+			clusters.add(cluster);
+			
+			// Traverse all rows to add the distance between
+			// current row (fromIdx) and the rest of the list
+			for (int toIdx=0; toIdx<rows;toIdx++){
+				
+				if (fromIdx!=toIdx){ // to a different point than itself. This distance is 0  
+					
+					// Check whether the distance was already calculate backwards
+					toFrom = distances.get(toIdx+"-"+fromIdx);
+					
+					// if not then calculate the distance
+					if (toFrom==null){
+						toFrom = Utility.distance(data.get(rowKeys.get(fromIdx)), data.get(rowKeys.get(toIdx)));
+						distances.put(fromIdx+"-"+toIdx, toFrom);
+					}
+					
+					// TODO change the BigDecimal object creation
+					// add the distance to the cluster neighbors
+					cluster.addCloseNeighbor(toFrom, toIdx);
+				}	
+			}
+			
+			// initialized the results collection.				
+			results.addClusterToLabel(0);
+		}
+		
+		
+	}
+	
 
 }

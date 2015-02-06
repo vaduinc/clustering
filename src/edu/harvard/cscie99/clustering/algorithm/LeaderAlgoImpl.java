@@ -137,6 +137,13 @@ public class LeaderAlgoImpl implements IClusterAlgo {
 	}
 
 	
+	/**
+	 * TODO description -- merge with sibling
+	 * @param data
+	 * @param idxRow
+	 * @param clusters
+	 * @return Map<String, Number>
+	 */
 	private static Map<String, Number> calculateDistance(Map<String, BitSet> data, int idxRow, List<List<Integer>> clusters) {
 		
 		  Map<String, Number> minPair = new HashMap<String,Number>(3);	
