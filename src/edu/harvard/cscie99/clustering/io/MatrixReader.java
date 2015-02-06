@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @author henstock
  */
-public class MatrixReader {
+public class MatrixReader implements IReader {
     private int FIRST_LINE_COUNT = 5;
     public final static double EPSILON = 1E-8;
     private final ArrayList<String> colHeaders = new ArrayList<String>();
@@ -24,6 +24,10 @@ public class MatrixReader {
     private final ArrayList<ArrayList<Double>> matrixData = new ArrayList<ArrayList<Double>>();
     private int numRows = 0;
     private int numCols = 0;
+    
+    private double[] means = new double[0];
+    private double[] stds  = new double[0];
+    private boolean normalizationComputed = false;
     
 
     /**
@@ -66,6 +70,7 @@ public class MatrixReader {
         colHeaders.clear();;
         rowHeaders.clear();
         matrixData.clear();
+        normalizationComputed = false;
     }
     
     /**
@@ -235,6 +240,20 @@ public class MatrixReader {
         return Math.abs(value - prevValue - 1) < EPSILON;
     }
     
+    protected double[] getMeanVector() {
+        if( ! normalizationComputed) {
+            computeMeanStds();
+        }
+        return means;
+    }
+    
+    protected double[] getStdVector() {
+        if( ! normalizationComputed) {
+            computeMeanStds();
+        }
+        return stds;
+    }
+    
     /**
      * Fills the rowHeaders if applicable, increments rowIndex, and adds the ArrayList<Double> to the list.
      * @param line
@@ -294,33 +313,91 @@ public class MatrixReader {
     }
     
     /**
+     * Fills means and stds based on the loaded data.  It sets 
+     * normalizationComputed to true.  If the numRows o numCols is 0, it
+     * sets means and stds to a zero length double[] and does not set the
+     * normalizationComplete to true
+     */
+    protected void computeMeanStds() {
+        means = new double[numCols];
+        stds  = new double[numCols];
+        if(numRows >  0 && numCols > 0) {
+            for(int col = 0; col < numCols; col++) {
+                means[col] = 0.0;
+                stds[col] = 0.0;
+            }
+            for(ArrayList<Double> rowValues : matrixData) {
+                for(int col = 0; col < numCols; col++) {
+                    double value = rowValues.get(col);
+                    means[col] += value;
+                    stds[col] += (value*value);
+                }
+            }
+        
+            for(int col = 0; col < numCols; col++) {
+                means[col] /= numRows;
+                stds[col] = Math.sqrt( stds[col]/(numRows-1) - means[col]*means[col]*numRows/(numRows-1));
+            }
+            normalizationComputed = true;
+        }
+    }
+    
+    /**
+     * Utility to return a normalized output array of the input array.
+     * The normalization is based on the (x-mean)/stdev.  Mean and stdev
+     * are computed if not previously computed.* 
+     * @param inputArray
+     * @throws IllegalArrayLengthException if the inputArray does not have numCols entries
+     * @return 
+     */
+    public double[] normalizeVector(double[] inputArray) throws IllegalArrayLengthException {
+        if(inputArray.length != numCols) {
+            throw new IllegalArrayLengthException("Illegal centroid argument: ", inputArray.length, numCols);
+        }
+        if( ! normalizationComputed) {
+            computeMeanStds();
+        } 
+        double[] outputArray = new double[inputArray.length];
+        for(int col = 0; col < numCols; col++) {
+            outputArray[col] = (inputArray[col] - means[col] ) / stds[col];
+        }
+        return outputArray;
+    }
+    
+    /**
+     * Utility to return a normalized centroid given an un-normalized centroid.
+     * The normalization is based on the (x-mean)/stdev.  Mean and stdev
+     * are computed if not previously computed.
+     * @param centroid
+     * @return 
+     */
+    public ArrayList<Double> normalizeList(ArrayList<Double> centroid) throws IllegalArrayLengthException {
+        if(centroid.size() != numCols) {
+            throw new IllegalArrayLengthException("Illegal centroid argument: ", centroid.size(), numCols);
+        }
+        if( ! normalizationComputed ) {
+            computeMeanStds();
+        } 
+        ArrayList<Double> output = new ArrayList<Double>();
+        int index = 0;
+        for(Double tuple : centroid) {
+            output.add((tuple - means[index]) / stds[index] );
+            index++;
+        }
+        return output;
+    }
+    
+    
+    /**
      * Returns a matrix of N(0,1) normalized valus
      * @return 
      */
     public double[][] getNormalizedMatrix() {
-        double[] means = new double[numCols];
-        double[] stds  = new double[numCols];
-        for(int col = 0; col < numCols; col++) {
-            means[col] = 0.0;
-            stds[col] = 0.0;
+        if( ! normalizationComputed) {
+            computeMeanStds();
         }
-        int row = 0;
-        for(ArrayList<Double> rowValues : matrixData) {
-            for(int col = 0; col < numCols; col++) {
-                double value = rowValues.get(col);
-                means[col] += value;
-                stds[col] += (value*value);
-            }
-            row++;
-        }
-        
-        for(int col = 0; col < numCols; col++) {
-            means[col] /= numRows;
-            stds[col] = Math.sqrt( stds[col]/(numRows-1) - means[col]*means[col]*numRows/(numRows-1));
-        }
-        
         double[][] normMtx = new double[numRows][numCols];
-        row = 0;
+        int row = 0;
         for(ArrayList<Double> rowValues : matrixData) {
             for(int col = 0; col < numCols; col++) {
                 normMtx[row][col] = (rowValues.get(col) - means[col] ) / stds[col];

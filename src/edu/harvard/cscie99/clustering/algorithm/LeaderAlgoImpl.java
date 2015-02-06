@@ -1,31 +1,34 @@
 package edu.harvard.cscie99.clustering.algorithm;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.harvard.cscie99.clustering.result.ClusteringResult;
+import edu.harvard.cscie99.clustering.util.InputParamEnum;
+import edu.harvard.cscie99.clustering.util.Utility;
 
 public class LeaderAlgoImpl implements IClusterAlgo {
 
 	@Override
-	public ClusteringResult cluster(double[][] data,
-			Map<String, String> clusterParams) {
-		// TODO Auto-generated method stub
+	public ClusteringResult cluster(List<String> rowLabels,double[][] data,
+			Map<String, Object> clusterParams) {
 		
 		try {
-			final double minDistance = Double.valueOf(clusterParams.get("minDistance")); // TODO check for exception
-			final String distanceMetric = clusterParams.get("distanceMetric"); //{"Euclidian"}
+			final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); // TODO check for exception
+			final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC.value()); //{"Euclidian"}
 			final int rows = data.length;
 			
-			ClusteringResult results = new ClusteringResult(rows);
+			ClusteringResult results = new ClusteringResult(rows,rowLabels);
 			Map<String, Number> minPair;
 			List<List<Integer>> clusters = new ArrayList<List<Integer>>();
 			List<Integer> clustersRows = new ArrayList<Integer>();
-			//double current[] = data[0]; 
+			
 			clustersRows.add(0); 		// add the first row 
 			clusters.add(clustersRows);	// create the first Cluster and add the first row to it.
+			
 			results.addClusterToLabel(1); // first cluster label starts in 1
 			
 			for (int idx=1; idx<rows;idx++){
@@ -76,7 +79,7 @@ public class LeaderAlgoImpl implements IClusterAlgo {
 		  for (int idxCluster = 0; idxCluster < clusters.size(); idxCluster++) {
 			  currentRowIdx = clusters.get(idxCluster).get(0);
 			  double[] originalRowCluster = data[currentRowIdx]; // gets the first row that was created for this cluster
-			  currentMinDist = LeaderAlgoImpl.distance(originalRowCluster, rowInEvaluation);
+			  currentMinDist = Utility.distance(originalRowCluster, rowInEvaluation);
 			  
 			  if (currentMinDist<minDist){
 				  minDist = currentMinDist;
@@ -95,36 +98,78 @@ public class LeaderAlgoImpl implements IClusterAlgo {
 	}
 	
 	
-	/**
-	 * TODO move to UTIL static -- throws exception
-	 * 
-	 * @param point1
-	 * @param point2
-	 * @return double 
-	 */
-	private static double distance(double[] point1, double[] point2)
-			throws Exception {
-		
-		// Make sure both have the same length 
-		if (point1.length == point2.length) {
-			Double sum = 0D;
-			for (int i = 0; i < point1.length; i++) {
-				sum = sum + (point2[i] - point1[i]) * (point2[i] - point1[i]);
-			}
-			return Math.sqrt(sum);
-		} else {
-			throw new Exception("Error: array lengths are not equal");
-		}
-	}
-	
-
 	@Override
-	public ClusteringResult cluster(Map<String, List<Integer>> data,
+	public ClusteringResult cluster(Map<String, BitSet> data,
 			Map<String, Object> clusterParams) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); // TODO check for exception
+		final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC.value()); //{"Euclidian"}
+		final List<String> rowKeys = new ArrayList<String>(data.keySet());
+		final int rows = rowKeys.size();
+		
+		ClusteringResult results = new ClusteringResult(rows,rowKeys);
+		Map<String, Number> minPair;
+		
+		List<Integer> clustersRows = new ArrayList<Integer>();
+		List<List<Integer>> clusters = new ArrayList<List<Integer>>();
+		
+		clustersRows.add(0); 		// add the first row 
+		clusters.add(clustersRows);	// create the first Cluster and add the first row to it.
+		
+		results.addClusterToLabel(1); // first cluster label starts in 1
+				
+		for (int idx=1; idx<rows;idx++){
+			minPair  = LeaderAlgoImpl.calculateDistance(data, idx, clusters);
+			if (minPair.get("MIN").doubleValue()  < minDistance ){
+				clusters.get(minPair.get("MIN_CLS_IDX").intValue()).add(idx);
+				results.addClusterToLabel(minPair.get("MIN_CLS_IDX").intValue()+1);
+			}else{
+				// Create a new cluster and insert the evaluated row into it.
+				List<Integer> newClustersRows = new ArrayList<Integer>();
+				newClustersRows.add(idx);
+				clusters.add(newClustersRows);
+				results.addClusterToLabel(clusters.size()); 
+			}
+		}
+		
+	
+		return results;
 	}
 
+	
+	private static Map<String, Number> calculateDistance(Map<String, BitSet> data, int idxRow, List<List<Integer>> clusters) {
+		
+		  Map<String, Number> minPair = new HashMap<String,Number>(3);	
+		  final List<String> rowKeys = new ArrayList<String>(data.keySet());
+		  final BitSet rowInEvaluation = data.get(rowKeys.get(idxRow));
+		  
+		  int minDist = Integer.MAX_VALUE; // biggest number a Double can get in Java
+		  int currentMinDist=0;
+		  int minRowIdx = -1;
+		  int currentRowIdx = 0;
+		  int currentClusterIdx = 0;
+		  
+		  for (int idxCluster = 0; idxCluster < clusters.size(); idxCluster++) {
+			  currentRowIdx = clusters.get(idxCluster).get(0);
+			  BitSet originalRowCluster = data.get(rowKeys.get(currentRowIdx)); // gets the first row that was created for this cluster
+			  currentMinDist = Utility.distance(originalRowCluster, rowInEvaluation);
+			  
+			  if (currentMinDist<minDist){
+				  minDist = currentMinDist;
+				  minRowIdx = currentRowIdx;
+				  currentClusterIdx = idxCluster;
+			  }
+		          
+		  }
+		  
+		  minPair.put("MIN", minDist);
+		  minPair.put("MIN_ROW_IDX", minRowIdx);
+		  minPair.put("MIN_CLS_IDX", currentClusterIdx);
+		  
+		  return minPair ;
+		
+	}
+		
 }
 
 	

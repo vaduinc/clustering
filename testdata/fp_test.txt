@@ -1,0 +1,3 @@
+ArticleA	1,3
+ArticleB	1,4
+ArticleC	2,3,4
