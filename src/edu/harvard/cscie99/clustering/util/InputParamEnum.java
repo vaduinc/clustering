@@ -1,22 +1,24 @@
 package edu.harvard.cscie99.clustering.util;
 
+/**
+ *	Enum to parse the command line input parameters
+ *
+ *	pos[0] 	Name of the input parameter
+ *	pos[1] 	Whether the parameter is required or not
+ *	pos[2] 	Regex to validate value of the input param.
+ *	pos[3] 	Defines whether the parameter makes reference to 
+ *			a specific algorithm (jarvis | leader) or if general (general)  
+ *
+ */
+
 public enum InputParamEnum {
 
-//	public static String IN_MTX_FILE = "-mtxfile";
-//	public static String IN_FP_FILE = "-fpfile";
-//	public static String IN_OUTPATH = "-outpath";
-//	public static String IN_ALGO = "-algorithm";
-//	public static String IN_DIST_METRIC = "-distanceMetric";
-//	public static String IN_MIN_DIST = "-minDistance";
-//	public static String IN_NUM_NEIGH = "-numNeighbors";
-//	public static String IN_COMM_NEIGH = "-commonNeighbors";
-	
 	IN_ALGO("-algorithm",true,"(leader|jarvis)","general" ),
 	IN_FILE("file",true,null, "general" ),
 	IN_OUTPATH("-outpath",true,null, "general" ),
-	IN_DIST_METRIC("-distanceMetric",true,null, "general" ),
-	IN_NUM_NEIGH("-numNeighbors",true,"\\d{2}", "jarvis" ),
-	IN_COMM_NEIGH("-commonNeighbors", true,"\\d{2}", "jarvis" ),
+	//IN_DIST_METRIC("-distanceMetric",false,null, "general" ),  // not in used yet
+	IN_NUM_NEIGH("-numNeighbors",true,"\\d{1,2}", "jarvis" ),
+	IN_COMM_NEIGH("-commonNeighbors", true,"\\d{1,2}", "jarvis" ),
 	IN_MIN_DIST("-minDistance",true,"^[0-9]\\d*(\\.\\d+)?$", "leader" ), 
 	;
   

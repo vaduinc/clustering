@@ -25,7 +25,7 @@ public class Utility {
 		}
 			
 		point1.xor(point2);	
-		System.out.println(point1.cardinality() + " : " + point1);
+		//System.out.println(point1.cardinality() + " : " + point1);
 	      
 	    return point1.cardinality();
 	}

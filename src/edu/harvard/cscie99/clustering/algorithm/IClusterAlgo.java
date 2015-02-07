@@ -6,10 +6,10 @@ import java.util.Map;
 
 import edu.harvard.cscie99.clustering.result.ClusteringResult;
 
-public interface IClusterAlgo {
+public interface IClusterAlgo<E> {
 
-	ClusteringResult cluster(List<String> rowLabels,double[][] data, Map<String,Object> clusterParams);
+	//ClusteringResult cluster(List<String> rowLabels,double[][] data, Map<String,Object> clusterParams);
 	
-	ClusteringResult cluster(Map<String, BitSet> data, Map<String,Object> clusterParams);
+	ClusteringResult cluster(E data, Map<String,Object> clusterParams);
 	
 }

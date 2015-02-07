@@ -19,8 +19,7 @@ public class ClusterJarvis {
 	static String STATUS_MOVED = "MOVED";
 	
 	private int id;
-	private List<DistanceRow> closestNeighbors ; 	//<distance, rowId>
-	//private SortedMap<Double,Integer> closestNeighbors ; 	//<distance, rowId>
+	private List<DistanceRow> closestNeighbors ; 			//<distance, rowId>
 	private List<Integer> clusterRows; 						// rows that belong to this cluster
 	private String status; 									// to know whether this cluster was already processed
 	
@@ -53,7 +52,12 @@ public class ClusterJarvis {
 	 * @return
 	 */
 	public static List<DistanceRow> truncateCollection(int max, List<DistanceRow> source) {
-		  return source.subList(0, max); 
+		
+		if (source.size()>max){
+			return source.subList(0, max);
+		}else{
+			return source;
+		}
 	}
 	
 	
@@ -107,7 +111,7 @@ public class ClusterJarvis {
 		this.closestNeighbors = closestNeighbors;
 	}
 	
-	public void addCloseNeighbor(Double distance, Integer rowId){
+	public void addCloseNeighbor(Number distance, Integer rowId){
 		this.closestNeighbors.add(new DistanceRow(distance, rowId));
 	}
 	

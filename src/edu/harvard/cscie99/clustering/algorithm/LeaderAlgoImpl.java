@@ -18,7 +18,6 @@ public class LeaderAlgoImpl implements IClusterAlgo {
 		
 		try {
 			final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); // TODO check for exception
-			final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC.value()); //{"Euclidian"}
 			final int rows = data.length;
 			
 			ClusteringResult results = new ClusteringResult(rows,rowLabels);
@@ -103,7 +102,6 @@ public class LeaderAlgoImpl implements IClusterAlgo {
 			Map<String, Object> clusterParams) {
 		
 		final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); // TODO check for exception
-		final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC.value()); //{"Euclidian"}
 		final List<String> rowKeys = new ArrayList<String>(data.keySet());
 		final int rows = rowKeys.size();
 		

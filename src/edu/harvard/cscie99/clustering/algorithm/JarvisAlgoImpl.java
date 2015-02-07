@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,38 +13,36 @@ import edu.harvard.cscie99.clustering.result.ClusteringResult;
 import edu.harvard.cscie99.clustering.util.InputParamEnum;
 import edu.harvard.cscie99.clustering.util.Utility;
 
-public class JarvisAlgoImpl implements IClusterAlgo {
+public class JarvisAlgoImpl implements IClusterAlgo<Map<String, BitSet>> {
 
 	public final static int PRECISION = 1;
 	
-	@Override
-	public ClusteringResult cluster(List<String> rowLabels,double[][] data,
-			Map<String, Object> clusterParams) {
-		// TODO Auto-generated method stub
-		
-		try {
-			final int numNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_NUM_NEIGH.value()).toString()); // TODO check for exception
-			final int commonNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_COMM_NEIGH.value()).toString()); // TODO check for exception
-			final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC); //{"Euclidian"}
-			final int rows = data.length;
-			
-			ClusteringResult results = new ClusteringResult(rows,rowLabels);
-			List<ClusterJarvis> clusters = new ArrayList<ClusterJarvis>();
-			
-			// initialize
-			initializeAllNeighborsAndDistances(data,clusters,results);
-			
-			// process data.
-			mergeCommonNeighbors(rows, clusters, results, numNeighbors, commonNeighbors);
-			
-			return results;
-		
-		} catch (Exception e) {
-			// TODO log the error
-			e.printStackTrace();
-			return null;
-		}
-	}
+//	@Override
+//	public ClusteringResult cluster(List<String> rowLabels,double[][] data,
+//			Map<String, Object> clusterParams) {
+//		
+//		try {
+//			final int numNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_NUM_NEIGH.value()).toString()); // TODO check for exception
+//			final int commonNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_COMM_NEIGH.value()).toString()); // TODO check for exception
+//			final int rows = data.length;
+//			
+//			ClusteringResult results = new ClusteringResult(rows,rowLabels);
+//			List<ClusterJarvis> clusters = new ArrayList<ClusterJarvis>();
+//			
+//			// initialize
+//			initializeAllNeighborsAndDistances(data,clusters,results);
+//			
+//			// process data.
+//			mergeCommonNeighbors(rows, clusters, results, numNeighbors, commonNeighbors);
+//			
+//			return results;
+//		
+//		} catch (Exception e) {
+//			// TODO log the error
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
 
 
 	/**
@@ -126,52 +125,52 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 	 * @param results
 	 * @throws Exception
 	 */
-	private void initializeAllNeighborsAndDistances(double[][] data,List<ClusterJarvis> clusters, ClusteringResult results) throws Exception{
-		
-		final int rows = data.length;
-		
-		/*
-		 * Distance { "From-To", distance}. Therefore, it is not
-		 * necessary to calculate the distance twice when calculating
-		 * distance between To-From
-		 */
-		Map<String,Double> distances = new HashMap<String, Double>();
-		Double toFrom=null;
-
-		for (int fromIdx=0; fromIdx<rows;fromIdx++){
-		
-			ClusterJarvis cluster = new ClusterJarvis(fromIdx);
-			cluster.addRow2Cluster(fromIdx);
-			
-			clusters.add(cluster);
-			
-			// Traverse all rows to add the distance between
-			// current row (fromIdx) and the rest of the list
-			for (int toIdx=0; toIdx<rows;toIdx++){
-				
-				if (fromIdx!=toIdx){ // to a different point than itself. This distance is 0  
-					
-					// Check whether the distance was already calculate backwards
-					toFrom = distances.get(toIdx+"-"+fromIdx);
-					
-					// if not then calculate the distance
-					if (toFrom==null){
-						toFrom = Utility.distance(data[fromIdx], data[toIdx]);
-						distances.put(fromIdx+"-"+toIdx, toFrom);
-					}
-					
-					// TODO change the BigDecimal object creation
-					// add the distance to the cluster neighbors
-					cluster.addCloseNeighbor(new BigDecimal(toFrom).setScale(PRECISION,BigDecimal.ROUND_HALF_UP).doubleValue(), toIdx);
-				}	
-			}
-			
-			// initialized the results collection.				
-			results.addClusterToLabel(0);
-		}
-		
-		
-	}
+//	private void initializeAllNeighborsAndDistances(double[][] data,List<ClusterJarvis> clusters, ClusteringResult results) throws Exception{
+//		
+//		final int rows = data.length;
+//		
+//		/*
+//		 * Distance { "From-To", distance}. Therefore, it is not
+//		 * necessary to calculate the distance twice when calculating
+//		 * distance between To-From
+//		 */
+//		Map<String,Double> distances = new HashMap<String, Double>();
+//		Double toFrom=null;
+//
+//		for (int fromIdx=0; fromIdx<rows;fromIdx++){
+//		
+//			ClusterJarvis cluster = new ClusterJarvis(fromIdx);
+//			cluster.addRow2Cluster(fromIdx);
+//			
+//			clusters.add(cluster);
+//			
+//			// Traverse all rows to add the distance between
+//			// current row (fromIdx) and the rest of the list
+//			for (int toIdx=0; toIdx<rows;toIdx++){
+//				
+//				if (fromIdx!=toIdx){ // to a different point than itself. This distance is 0  
+//					
+//					// Check whether the distance was already calculate backwards
+//					toFrom = distances.get(toIdx+"-"+fromIdx);
+//					
+//					// if not then calculate the distance
+//					if (toFrom==null){
+//						toFrom = Utility.distance(data[fromIdx], data[toIdx]);
+//						distances.put(fromIdx+"-"+toIdx, toFrom);
+//					}
+//					
+//					// TODO change the BigDecimal object creation
+//					// add the distance to the cluster neighbors
+//					cluster.addCloseNeighbor(new BigDecimal(toFrom).setScale(PRECISION,BigDecimal.ROUND_HALF_UP).doubleValue(), toIdx);
+//				}	
+//			}
+//			
+//			// initialized the results collection.				
+//			results.addClusterToLabel(0);
+//		}
+//		
+//		
+//	}
 	
 
 	@Override
@@ -180,29 +179,36 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 		
 		final int numNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_NUM_NEIGH.value()).toString()); // TODO check for exception
 		final int commonNeighbors = Integer.valueOf(clusterParams.get(InputParamEnum.IN_COMM_NEIGH.value()).toString()); // TODO check for exception
-		final String distanceMetric = (String)clusterParams.get(InputParamEnum.IN_DIST_METRIC); //{"Euclidian"}
-		final List<String> rowKeys = new ArrayList<String>(data.keySet());
-		final int rows = rowKeys.size();
+		
+		List<String> rowKeys = new ArrayList<String>(data.keySet());
+		Collections.sort(rowKeys); // Sorting is a MUST. Otherwise, the results will come in different order.
+		
+		final int rows = data.size();
 		
 		ClusteringResult results = new ClusteringResult(rows,rowKeys);
 		List<ClusterJarvis> clusters = new ArrayList<ClusterJarvis>();
 		
-		return null;
+		// initialize
+		initializeAllNeighborsAndDistances(data,clusters,results,rowKeys);
+		
+		// process data.
+		mergeCommonNeighbors(rows, clusters, results, numNeighbors, commonNeighbors);
+		
+		return results;
 	}
 	
 	
-	private void initializeAllNeighborsAndDistances(Map<String, BitSet> data,List<ClusterJarvis> clusters, ClusteringResult results) throws Exception{
+	private void initializeAllNeighborsAndDistances(Map<String, BitSet> data,List<ClusterJarvis> clusters, ClusteringResult results, List<String> rowKeys) {
 		
 		final int rows = data.size();
-		final List<String> rowKeys = new ArrayList<String>(data.keySet());
 		
 		/*
 		 * Distance { "From-To", distance}. Therefore, it is not
 		 * necessary to calculate the distance twice when calculating
 		 * distance between To-From
 		 */
-		Map<String,Integer> distances = new HashMap<String, Integer>();
-		Integer toFrom=0;
+		Map<String,Number> distances = new HashMap<String, Number>();
+		Number toFrom=0;
 
 		for (int fromIdx=0; fromIdx<rows;fromIdx++){
 		
@@ -226,7 +232,6 @@ public class JarvisAlgoImpl implements IClusterAlgo {
 						distances.put(fromIdx+"-"+toIdx, toFrom);
 					}
 					
-					// TODO change the BigDecimal object creation
 					// add the distance to the cluster neighbors
 					cluster.addCloseNeighbor(toFrom, toIdx);
 				}	
