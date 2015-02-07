@@ -1,11 +1,15 @@
 package edu.harvard.cscie99.clustering;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Map;
 
 import edu.harvard.cscie99.clustering.algorithm.IClusterAlgo;
-import edu.harvard.cscie99.clustering.algorithm.JarvisAlgoImpl;
-import edu.harvard.cscie99.clustering.algorithm.LeaderAlgoImpl;
+import edu.harvard.cscie99.clustering.algorithm.JarvisAlgoFPImpl;
+import edu.harvard.cscie99.clustering.algorithm.JarvisAlgoMTXImpl;
+import edu.harvard.cscie99.clustering.algorithm.LeaderAlgoFPImpl;
+import edu.harvard.cscie99.clustering.algorithm.LeaderAlgoMTXImpl;
 import edu.harvard.cscie99.clustering.io.FingerprintReader;
 import edu.harvard.cscie99.clustering.io.IReader;
 import edu.harvard.cscie99.clustering.io.MatrixReader;
@@ -41,8 +45,14 @@ public class Cluster {
             
         } catch(IOException ioe) {
             System.err.println("Error: Failed to load file " + clusterParams.get(InputParamEnum.IN_FILE.value()));
-        } catch (Exception ex){
-        	System.err.println("Error: Something went terrible wrong!!! " + ex.toString());
+        } catch (Exception e){
+        	
+        	// For debugging purposes.
+        	StringWriter sw = new StringWriter();
+        	e.printStackTrace(new PrintWriter(sw));
+        	String exceptionAsString = sw.toString();
+        	
+        	System.err.println("Error: Something went terrible wrong!!! \n" + exceptionAsString);
         }
 		
 		
@@ -60,9 +70,19 @@ public class Cluster {
 	public static IClusterAlgo getAlgorithm(Map<String, Object> clusterParams) {
 		
 		if ( clusterParams.get(InputParamEnum.IN_ALGO.value()).toString().equalsIgnoreCase("leader") ){
-			return new LeaderAlgoImpl();
+			if ( clusterParams.get("-dataType").toString().equalsIgnoreCase("fp") ){
+				return new LeaderAlgoFPImpl();
+				//return null;
+			}else{
+				return new LeaderAlgoMTXImpl();
+			}
 		}else{
-			return new JarvisAlgoImpl();
+			if ( clusterParams.get("-dataType").toString().equalsIgnoreCase("fp") ){
+				return new JarvisAlgoFPImpl();
+			}else{
+				return new JarvisAlgoMTXImpl();
+			}
+			
 		}
 	}
 	
@@ -83,7 +103,8 @@ public class Cluster {
 			results = algorithm.cluster(((FingerprintReader)reader).getFingerprintMap(), clusterParams);
 		}else{
 			//results = algorithm.cluster(((MatrixReader)reader).getRowHeaders(),((MatrixReader)reader).getRawMatrix() , clusterParams);
-			results = algorithm.cluster(((MatrixReader)reader).getRowHeaders(),((MatrixReader)reader).getNormalizedMatrix() , clusterParams);
+			clusterParams.put("rowlabels", ((MatrixReader)reader).getRowHeaders());
+			results = algorithm.cluster(((MatrixReader)reader).getNormalizedMatrix() , clusterParams);
 		}
 		
         return results;

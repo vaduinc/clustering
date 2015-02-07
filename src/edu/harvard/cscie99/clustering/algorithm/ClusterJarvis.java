@@ -54,7 +54,8 @@ public class ClusterJarvis {
 	public static List<DistanceRow> truncateCollection(int max, List<DistanceRow> source) {
 		
 		if (source.size()>max){
-			return source.subList(0, max);
+			source.subList(max,source.size()).clear();
+			return source;
 		}else{
 			return source;
 		}

@@ -36,7 +36,6 @@ public class CommandLineParam {
 			
 			// get the general input parameter values
 			CommandLineParam.setInputParameters(clusterParams, args, (String)clusterParams.get(InputParamEnum.IN_ALGO.value()));
-			
 	
 		}
 		

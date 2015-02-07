@@ -22,13 +22,13 @@ public class DistanceRow implements Comparable<DistanceRow> {
 	public int compareTo(DistanceRow o) {
 		// TODO Auto-generated method stub
 		
-		if(this.distance==o.distance ){
-			return 0;
-		}else if(this.distance.doubleValue()>o.distance.doubleValue() ){
+		if(this.distance.doubleValue()>o.distance.doubleValue() ){
 			return 1;
-		}else{
+		}else if(this.distance.doubleValue()<o.distance.doubleValue() ){
 			return -1;
-		}
+		}else{
+			return 0;
+		}	
 		
 	}
 

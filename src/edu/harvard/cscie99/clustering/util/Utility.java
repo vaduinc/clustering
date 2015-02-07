@@ -37,19 +37,14 @@ public class Utility {
 	 * @param point2
 	 * @return double 
 	 */
-	public static double distance(double[] point1, double[] point2)
-			throws Exception {
+	public static double distance(double[] point1, double[] point2)	{
 		
-		// Make sure both have the same length 
-		if (point1.length == point2.length) {
-			Double sum = 0D;
-			for (int i = 0; i < point1.length; i++) {
-				sum = sum + (point2[i] - point1[i]) * (point2[i] - point1[i]);
-			}
-			return Math.sqrt(sum);
-		} else {
-			throw new Exception("Error: array lengths are not equal");
+		// ASSUMPTION: the length of the arrays is the same. 
+		Double sum = 0D;
+		for (int i = 0; i < point1.length; i++) {
+			sum = sum + (point2[i] - point1[i]) * (point2[i] - point1[i]);
 		}
+		return Math.sqrt(sum);
 	}
 
 }
