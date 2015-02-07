@@ -25,6 +25,26 @@ public class ClusterJarvis {
 	
 	
 	/**
+	 * Just for debugging purposes
+	 */
+	public String toString(){
+		
+		StringBuffer stb = new StringBuffer("Cluster id:" + id + " status: " + status +"\n");
+		
+		stb.append("Neighbors :\n");
+		for(DistanceRow dstRow: closestNeighbors){
+			stb.append(dstRow.toString() +"\n");
+		}
+		
+		stb.append("Rows in this Cluster :\n");
+		for(Integer clusterRow: clusterRows){
+			stb.append(" Rowid = " + clusterRow +"\n");
+		}
+		
+		return stb.toString();
+	}
+	
+	/**
 	 * TODO move to utilities
 	 * 
 	 * @param max

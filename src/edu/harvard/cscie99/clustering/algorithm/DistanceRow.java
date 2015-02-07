@@ -5,6 +5,13 @@ public class DistanceRow implements Comparable<DistanceRow> {
 	private int rowId;
 	private Number distance;
 	
+	/**
+	 * Just for debugging purposes
+	 */
+	public String toString(){
+		return " rowId[" + rowId + "] - distance[" + distance +"]"; 
+	}
+	
 	public DistanceRow(Number distance, int rowId){
 		this.rowId = rowId;
 		this.distance = distance;

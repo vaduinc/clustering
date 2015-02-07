@@ -39,9 +39,8 @@ public class Cluster {
 			IClusterAlgo algorithm = getAlgorithm(clusterParams);
 			ClusteringResult results = executeAlgorithm(clusterParams, reader, algorithm);
 			
+			// output results to a file or screen.
 			results.writeClusterLabels(clusterParams.get(InputParamEnum.IN_OUTPATH.value()).toString());
-			
-	        //System.out.println(results.toString());
             
         } catch(IOException ioe) {
             System.err.println("Error: Failed to load file " + clusterParams.get(InputParamEnum.IN_FILE.value()));

@@ -81,6 +81,8 @@ public abstract class JarvisAlgorithm<E extends Object> implements IClusterAlgo<
 			
 			// initialized the results collection.				
 			results.addClusterToLabel(0);
+			
+			System.out.println(cluster.toString());// debugging
 		}
 	}
 

@@ -18,31 +18,35 @@ public class ClusteringResult {
 
 	/**
 	 * Write the results to an output file with name "outputFilename"
+	 * If the input parameter "outputFilename" == "@display" then
+	 * it will just printout the results to the screen/display and
+	 * will not create a file.
 	 * 
 	 * @param outputFilename
 	 * @throws IOException
 	 */
 	public void writeClusterLabels(String outputFilename) throws IOException{
-		
-		try (FileWriter outFile = new FileWriter(outputFilename);  
-  
-              BufferedWriter bWriter = new BufferedWriter(outFile)) {  
-  
-			  int idx = 0;
-	          for (String label :rowLabels){
-	          	bWriter.write(label + " = " +this.getClusterByIdx(idx) + "\n");
-	          	//System.out.println(label + " -- > " + this.getClusterByIdx(idx));
-	          	idx++;
-	          }
-              
-  
-        } catch (IOException e) {  
-  
-            e.printStackTrace();  
-        }    
 
+		if(outputFilename.equalsIgnoreCase("@display")){
+			// does not create an output file. It just printout the results on screen
+			System.out.println(this.toString());	
+		}else{
 		
-    		
+			try (FileWriter outFile = new FileWriter(outputFilename);  
+	  
+	              BufferedWriter bWriter = new BufferedWriter(outFile)) {  
+	  
+				  int idx = 0;
+		          for (String label :rowLabels){
+		          	bWriter.write(label + " = " +this.getClusterByIdx(idx) + "\n");
+		          	idx++;
+		          }
+	  
+	        } catch (IOException e) {  
+	            e.printStackTrace();  
+	        }
+		}	
+	    		
 	}
 	
 	public void addClusterToLabel(Integer clusterId){
@@ -56,8 +60,13 @@ public class ClusteringResult {
 	public Integer getClusterByIdx(int idx){
 		return rowCluster.get(idx);
 	}
+
+	public List<Integer> getRowCluster() {
+		return rowCluster;
+	}
 	
 	/**
+	 * Optional output 
 	 * To help when debugging.
 	 */
 	public String toString(){
@@ -72,5 +81,5 @@ public class ClusteringResult {
 		return sbf.toString();
 		
 	}
-	
+
 }
