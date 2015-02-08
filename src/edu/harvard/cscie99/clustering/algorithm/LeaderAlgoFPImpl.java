@@ -8,6 +8,11 @@ import java.util.Map;
 
 import edu.harvard.cscie99.clustering.util.Utility;
 
+/**
+ * Implementation of Leader algorithm using Map<String, BitSet> type
+ * for the input data
+ *
+ */
 public class LeaderAlgoFPImpl extends LeaderAlgorithm<Map<String, BitSet>> {
 
 	@Override

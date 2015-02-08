@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.harvard.cscie99.clustering.util.InputParamEnum;
+
 public class ClusteringResult {
 
 	private List<Integer> rowCluster; 
@@ -27,7 +29,7 @@ public class ClusteringResult {
 	 */
 	public void writeClusterLabels(String outputFilename) throws IOException{
 
-		if(outputFilename.equalsIgnoreCase("@display")){
+		if(outputFilename.equalsIgnoreCase(InputParamEnum.OUTPUT_DISPLAY)){
 			// does not create an output file. It just printout the results on screen
 			System.out.println(this.toString());	
 		}else{
@@ -67,7 +69,7 @@ public class ClusteringResult {
 	
 	/**
 	 * Optional output 
-	 * To help when debugging.
+	 * Just to help when debugging.
 	 */
 	public String toString(){
 		

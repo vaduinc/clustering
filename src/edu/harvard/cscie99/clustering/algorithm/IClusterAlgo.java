@@ -4,12 +4,13 @@ import java.util.Map;
 
 import edu.harvard.cscie99.clustering.result.ClusteringResult;
 
+/**
+ * Interface the must be implemented by all the clustering algorithms
+ *
+ * @param <E> is used for the data input type. Either <double[][]> or Map<String, BitSet>
+ */
 public interface IClusterAlgo<E> {
 
-	//ClusteringResult cluster(List<String> rowLabels,double[][] data, Map<String,Object> clusterParams);
-	
 	public ClusteringResult cluster(E data, Map<String,Object> clusterParams);
-
-	
 	
 }

@@ -2,32 +2,35 @@ package edu.harvard.cscie99.clustering.util;
 
 import java.util.BitSet;
 
+/**
+ *	Class to allocated common (utility) functionality 
+ *
+ */
 public class Utility {
 
 	/**
-	 * Returns the distance from point1 to point2
+	 * Returns the distance from row1 to row2
 	 * 
-	 * @param point1
-	 * @param point2
+	 * @param row1
+	 * @param row2
 	 * @return int 
 	 */
-	public static int distance(BitSet point1, BitSet point2){
+	public static int distance(BitSet row1, BitSet row2){
 		
-		int length1 = point1.length();
-		int length2 = point2.length();
+		int length1 = row1.length();
+		int length2 = row2.length();
 		
 		if ( length1>=length2){
-			point1.set(length1);
-			point2.set(length1);
+			row1.set(length1);
+			row2.set(length1);
 		}else{
-			point1.set(length2);
-			point2.set(length2);
+			row1.set(length2);
+			row2.set(length2);
 		}
 			
-		point1.xor(point2);	
-		//System.out.println(point1.cardinality() + " : " + point1);
+		row1.xor(row2);	
 	      
-	    return point1.cardinality();
+	    return row1.cardinality();
 	}
 
 	/**

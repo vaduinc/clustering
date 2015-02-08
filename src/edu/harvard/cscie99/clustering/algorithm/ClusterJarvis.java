@@ -3,25 +3,23 @@ package edu.harvard.cscie99.clustering.algorithm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
- * TODO
- * description
+ * Used by the Jarvis algorithm.
+ * It holds all the information related for each cluster created (a cluster for each row initially)
+ *  
  *
  */
 public class ClusterJarvis {
 
-	static String STATUS_PROCESSED = "PROCESSED";
-	static String STATUS_NOT_PROCESSED = "NOT PROCESSED";
-	static String STATUS_MOVED = "MOVED";
+	static String STATUS_PROCESSED = "PROCESSED";		  // finished processing.
+	static String STATUS_NOT_PROCESSED = "NOT PROCESSED"; // new cluster
+	static String STATUS_MOVED = "MOVED";				  // the data from this cluster was moved to another one	
 	
 	private int id;
 	private List<DistanceRow> closestNeighbors ; 			//<distance, rowId>
 	private List<Integer> clusterRows; 						// rows that belong to this cluster
-	private String status; 									// to know whether this cluster was already processed
+	private String status; 									// to know whether this cluster was already processed.
 	
 	
 	/**
@@ -44,32 +42,14 @@ public class ClusterJarvis {
 		return stb.toString();
 	}
 	
+	
 	/**
-	 * TODO move to utilities
+	 * It only keeps the "max" amount of elements in the list.
+	 * max = numNeighbors command line input parameter
 	 * 
 	 * @param max
 	 * @param source
-	 * @return
-	 */
-	public static SortedMap<Double,Integer> putFirstEntries(int max, SortedMap<Double,Integer> source) {
-		  int count = 0;
-		  TreeMap<Double,Integer> target = new TreeMap<Double,Integer>();
-		  for (Map.Entry<Double,Integer> entry:source.entrySet()) {
-		     if (count >= max) break;
-
-		     target.put(entry.getKey(), entry.getValue());
-		     count++;
-		  }
-		  return target;
-	}
-	
-	
-	/**
-	 * TDOO description 
-	 * 
-	 * @param max
-	 * @param source
-	 * @return
+	 * @return List<DistanceRow>
 	 */
 	public static List<DistanceRow> truncateCollection(int max, List<DistanceRow> source) {
 		
@@ -81,7 +61,11 @@ public class ClusterJarvis {
 		}
 	}
 	
-	
+	/**
+	 * Constructor
+	 * 
+	 * @param clusterId
+	 */
 	public ClusterJarvis(int clusterId){
 		this.id = clusterId;
 		this.status = STATUS_NOT_PROCESSED;
@@ -100,7 +84,7 @@ public class ClusterJarvis {
 	}
 	
 	/**
-	 * TODO description
+	 * Get the rows ids from the closestNeighbors cluster
 	 * 
 	 * @return List<Integer>
 	 */
@@ -117,7 +101,9 @@ public class ClusterJarvis {
 		
 	
 	/**
-	 * TODO description
+	 * Sort the "closestNeighbors" collection.
+	 * It's used after getting all the distances between
+	 * one row and the rest of the list.
 	 */
 	public void sortClosestNeighbors(){
 		Collections.sort(closestNeighbors);

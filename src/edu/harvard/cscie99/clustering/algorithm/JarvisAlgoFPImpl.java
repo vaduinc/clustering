@@ -8,6 +8,11 @@ import java.util.Map;
 
 import edu.harvard.cscie99.clustering.util.Utility;
 
+/**
+ * Implementation of Jarvis algorithm using Map<String, BitSet> type
+ * for the input data
+ *
+ */
 public class JarvisAlgoFPImpl extends JarvisAlgorithm<Map<String, BitSet>> {
 
 	@Override

@@ -1,4 +1,4 @@
-ArticleA	1,3
-ArticleB	1,4
-ArticleC	2,3,4
-ArticleD	5,6
+Article11	2,4,5,10,12,19
+Article12	2,4,9,12,13,20,25
+Article13	12,15
+Article14	3,4

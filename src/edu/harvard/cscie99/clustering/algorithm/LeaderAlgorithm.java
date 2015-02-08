@@ -1,113 +1,47 @@
 package edu.harvard.cscie99.clustering.algorithm;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.harvard.cscie99.clustering.result.ClusteringResult;
 import edu.harvard.cscie99.clustering.util.InputParamEnum;
 
+/**
+ * Class to support the Leader clustering algorithm.
+ * It supports both Matrix and Fingerprint input data. 
+ *
+ *	Clusters = {}
+ *		For each data row
+ *			Compute the distance for that row to the closest cluster
+ *			If distance < minDistance then
+ *				Assign the row to the given cluster
+ *			else
+ *				Create a new cluster centered at the current row
+ *				Assign the row to the given cluster
+ *		
+ *
+ * @param <E> is either <double[][]> or Map<String, BitSet>
+ */
 public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<E> {
 
-//	@Override
-//	public ClusteringResult cluster(List<String> rowLabels,double[][] data,
-//			Map<String, Object> clusterParams) {
-//		
-//		try {
-//			final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); // TODO check for exception
-//			final int rows = data.length;
-//			
-//			ClusteringResult results = new ClusteringResult(rows,rowLabels);
-//			Map<String, Number> minPair;
-//			List<List<Integer>> clusters = new ArrayList<List<Integer>>();
-//			List<Integer> clustersRows = new ArrayList<Integer>();
-//			
-//			clustersRows.add(0); 		// add the first row 
-//			clusters.add(clustersRows);	// create the first Cluster and add the first row to it.
-//			
-//			results.addClusterToLabel(1); // first cluster label starts in 1
-//			
-//			for (int idx=1; idx<rows;idx++){
-//				minPair  = LeaderAlgoImpl.calculateDistance(data, idx, clusters);
-//				if (minPair.get("MIN").doubleValue()  < minDistance ){
-//					clusters.get(minPair.get("MIN_CLS_IDX").intValue()).add(idx);
-//					results.addClusterToLabel(minPair.get("MIN_CLS_IDX").intValue()+1);
-//				}else{
-//					// Create a new cluster and insert the evaluated row into it.
-//					List<Integer> newClustersRows = new ArrayList<Integer>();
-//					newClustersRows.add(idx);
-//					clusters.add(newClustersRows);
-//					results.addClusterToLabel(clusters.size()); 
-//				}
-//			}
-//
-//			return results;
-//		
-//		} catch (Exception e) {
-//			// TODO log the error
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-//
-//	
-//	/**
-//	 * TODO move to UTIL
-//	 * Compute the distance for that row to the closest cluster
-//	 * 
-//	 * @param data
-//	 * @param idxRow
-//	 * @param clusters
-//	 * @return Map<String, Number>
-//	 * @throws Exception
-//	 */
-//	private static Map<String, Number> calculateDistance(double[][] data, int idxRow, List<List<Integer>> clusters) throws Exception{
-//	  
-//		  Map<String, Number> minPair = new HashMap<String,Number>(3);	
-//		  double[] rowInEvaluation = data[idxRow];
-//		  
-//		  double minDist = Double.MAX_VALUE; // biggest number a Double can get in Java
-//		  double currentMinDist=0;
-//		  int minRowIdx = -1;
-//		  int currentRowIdx = 0;
-//		  int currentClusterIdx = 0;
-//		  
-//		  for (int idxCluster = 0; idxCluster < clusters.size(); idxCluster++) {
-//			  currentRowIdx = clusters.get(idxCluster).get(0);
-//			  double[] originalRowCluster = data[currentRowIdx]; // gets the first row that was created for this cluster
-//			  currentMinDist = Utility.distance(originalRowCluster, rowInEvaluation);
-//			  
-//			  if (currentMinDist<minDist){
-//				  minDist = currentMinDist;
-//				  minRowIdx = currentRowIdx;
-//				  currentClusterIdx = idxCluster;
-//			  }
-//		          
-//		  }
-//		  
-//		  minPair.put("MIN", minDist);
-//		  minPair.put("MIN_ROW_IDX", minRowIdx);
-//		  minPair.put("MIN_CLS_IDX", currentClusterIdx);
-//		  
-//		  return minPair ;
-//	                  
-//	}
-//	
-
+//	final static String MIN = "MIN";
+//	final static String MIN_CLS_IDX = "MIN_CLS_IDX";
+	final static int MIN = 0;
+	final static int MIN_CLS_IDX = 1;
 	
 	public abstract List<String> getRowLabels(E data,	Map<String, Object> clusterParams);
-	
+	public abstract Number getDistance(E data, List<String> rowKeys , int fromIdx, int toIdx);
 	
 	@Override
 	public ClusteringResult cluster(E data,	Map<String, Object> clusterParams) {
 		
-		final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); // TODO check for exception
+		final double minDistance = Double.valueOf(clusterParams.get(InputParamEnum.IN_MIN_DIST.value()).toString()); 
 		final List<String> rowKeys = getRowLabels(data, clusterParams);
 		final int rows = rowKeys.size();
+		Number[] minPair;
 		
 		ClusteringResult results = new ClusteringResult(rows,rowKeys);
-		Map<String, Number> minPair;
 		
 		List<Integer> clustersRows = new ArrayList<Integer>();
 		List<List<Integer>> clusters = new ArrayList<List<Integer>>();
@@ -117,13 +51,16 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 		
 		results.addClusterToLabel(1); // first cluster label starts in 1
 				
+		// for each row in the data
 		for (int idx=1; idx<rows;idx++){
+			// compute the distance for that row to the closest cluster
 			minPair  = this.calculateDistance(data, idx, clusters,rowKeys);
-			if (minPair.get("MIN").doubleValue()  <= minDistance ){
-				clusters.get(minPair.get("MIN_CLS_IDX").intValue()).add(idx);
-				results.addClusterToLabel(minPair.get("MIN_CLS_IDX").intValue()+1);
+			if (minPair[MIN].doubleValue()  <= minDistance ){
+				// Assign the row to the given cluster
+				clusters.get(minPair[MIN_CLS_IDX].intValue()).add(idx);
+				results.addClusterToLabel(minPair[MIN_CLS_IDX].intValue()+1);
 			}else{
-				// Create a new cluster and insert the evaluated row into it.
+				// Create a new cluster centered at the current row
 				List<Integer> newClustersRows = new ArrayList<Integer>();
 				newClustersRows.add(idx);
 				clusters.add(newClustersRows);
@@ -135,24 +72,20 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 	}
 
 	
-	public abstract Number getDistance(E data, List<String> rowKeys , int fromIdx, int toIdx);
-	
-	
 	/**
-	 * TODO description 
+	 * Compute the distance for row (fromIdx) to the closest cluster 
 	 * 
 	 * @param data
-	 * @param fromIdx
+	 * @param fromIdx	current row
 	 * @param clusters
-	 * @return Map<String, Number>
+	 * @return Number[]	position[0] = minimum distance value, position[1] = cluster id 
 	 */
-	private  Map<String, Number> calculateDistance(E data, int fromIdx, List<List<Integer>> clusters,List<String> rowKeys) {
+	private  Number[]  calculateDistance(E data, int fromIdx, List<List<Integer>> clusters,List<String> rowKeys) {
 		
-		  Map<String, Number> minPair = new HashMap<String,Number>(3);	
+		  Number[] minPair = new Number[2] ;	
 		  
-		  Number minDist = Integer.MAX_VALUE; // biggest number a Double can get in Java
+		  Number minDist = Integer.MAX_VALUE; // biggest number a Integer can get in Java
 		  Number currentMinDist=0;
-		  int minRowIdx = -1;
 		  int toIdx = 0;
 		  int currentClusterIdx = 0;
 		  
@@ -162,15 +95,13 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 			  
 			  if (currentMinDist.doubleValue() < minDist.doubleValue()){
 				  minDist = currentMinDist;
-				  minRowIdx = toIdx;
 				  currentClusterIdx = idxCluster;
 			  }
 		          
 		  }
 		  
-		  minPair.put("MIN", minDist);
-		  minPair.put("MIN_ROW_IDX", minRowIdx);
-		  minPair.put("MIN_CLS_IDX", currentClusterIdx);
+		  minPair[MIN] = minDist;
+		  minPair[MIN_CLS_IDX] = currentClusterIdx;
 		  
 		  return minPair ;
 		

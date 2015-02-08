@@ -9,9 +9,41 @@ import java.util.Map;
 import edu.harvard.cscie99.clustering.result.ClusteringResult;
 import edu.harvard.cscie99.clustering.util.InputParamEnum;
 
+/**
+ * Class to support the Jarvis-Patrick clustering algorithm.
+ * It supports both Matrix and Fingerprint input data.
+ * 
+ * Following is the algorithm definition.
+ * 
+ * Taken from:
+ * http://www.improvedoutcomes.com/docs/WebSiteDocs/Clustering/Jarvis-Patrick_Clustering_Overview.htm
+ * 
+ * The first parameter, Neighbors to Examine, specifies how many of each item's neighbors to consider
+ * when counting the number of mutual neighbors shared with another item. This value must be at least 2. 
+ * Lower values cause the algorithm to finish faster, but the final set of clusters will have many 
+ * small clusters. Higher values cause the algorithm to take longer to finish, but may result in fewer
+ * clusters and clusters that form longer chains.
+ *
+ * The second parameter, Neighbors in Common, specifies the minimum number of mutual nearest neighbors
+ * two items must have for them to be in the same cluster. This value must be at least 1, and must not 
+ * exceed the value of the Neighbors to Examine parameter. 
+ * Lower values result in clusters that are compact. Higher values result in clusters that are more
+ * dispersed.
+ *
+ * Basic Procedure
+ *	
+ * For each object, find its J-nearest neighbors where "J" corresponds to the Neighbors to Examine 
+ * parameter on the Partitional Clustering dialog. Two items cluster together if they are in each 
+ * other's list of J-nearest neighbors and K of their J-nearest neighbors are in common, where the 
+ * K value corresponds to the Neighbors in Common parameter on the Partitional Clustering dialog.
+ *
+ *
+ * @param <E> is either <double[][]> or Map<String, BitSet>
+ */
+
 public abstract class JarvisAlgorithm<E extends Object> implements IClusterAlgo<E> {
 
-	public final static int PRECISION = 1;
+	public final static int PRECISION = 1; // number of decimals
 
 	public abstract List<String> getRowLabels(E data,	Map<String, Object> clusterParams);
 	public abstract Number getDistance(E data, List<String> rowKeys , int fromIdx, int toIdx);
@@ -39,7 +71,16 @@ public abstract class JarvisAlgorithm<E extends Object> implements IClusterAlgo<
 	}
 	
 	
-	protected void initializeAllNeighborsAndDistances(E data,List<ClusterJarvis> clusters, ClusteringResult results, List<String> rowKeys) {
+	/**
+	 * Creates a cluster for each row and includes all the distances between
+	 * this row and the rest of the rows
+	 * 
+	 * @param data
+	 * @param clusters	
+	 * @param results	to write the output
+	 * @param rowKeys	row labels
+	 */
+	private void initializeAllNeighborsAndDistances(E data,List<ClusterJarvis> clusters, ClusteringResult results, List<String> rowKeys) {
 		
 		final int rows = rowKeys.size();
 		
@@ -69,7 +110,6 @@ public abstract class JarvisAlgorithm<E extends Object> implements IClusterAlgo<
 					
 					// if not then calculate the distance
 					if (toFrom==null){
-						//toFrom = Utility.distance(data.get(rowKeys.get(fromIdx)), data.get(rowKeys.get(toIdx)));
 						toFrom = getDistance(data, rowKeys, fromIdx, toIdx);
 						distances.put(fromIdx+"-"+toIdx, toFrom);
 					}
@@ -82,13 +122,17 @@ public abstract class JarvisAlgorithm<E extends Object> implements IClusterAlgo<
 			// initialized the results collection.				
 			results.addClusterToLabel(0);
 			
-			System.out.println(cluster.toString());// debugging
+			// debugging System.out.println(cluster.toString());
 		}
 	}
 
 	
 	/**
-	 * TODO description 
+	 * Compares all the clusters and merge them when:
+	 * 
+	 * Two items cluster together if they are in each other's list and have 
+	 * commonNeighbors in common.
+	 * 
 	 * @param rows
 	 * @param clusters
 	 * @param results

@@ -1,8 +1,6 @@
 package edu.harvard.cscie99.clustering;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Map;
 
 import edu.harvard.cscie99.clustering.algorithm.IClusterAlgo;
@@ -17,17 +15,23 @@ import edu.harvard.cscie99.clustering.result.ClusteringResult;
 import edu.harvard.cscie99.clustering.util.CommandLineParam;
 import edu.harvard.cscie99.clustering.util.InputParamEnum;
 
+/**
+ *	Main class to execute clustering algorithms
+ *
+ *	java -jar clustering.jar [-mtxfile | -fpfile] myfile.txt -outpath [./output | @display ] -algorithm [leader | jarvis] -minDistance 0.5 -numNeighbors 2 -commonNeighbors 1
+ * 
+ * 		-algorithm must be one of the following values; leader or jarvis
+ * 		-minDistance must be used with Leader algorithm
+ *		-numNeighbors AND -commonNeighbors must be used with Jarvis algorithm, and numNeighbors >= commonNeighbors
+ *
+ *	java -jar clustering.jar -mtxfile ./HW1CodeData/testdata/iris.txt -outpath @display -algorithm leader -minDistance 0.5 
+ * 	java -jar clustering.jar -mtxfile ./HW1CodeData/testdata/iris.txt -outpath @display -algorithm jarvis -numNeighbors 5 -commonNeighbors 1
+ *  java -jar clustering.jar -fpfile ./HW1CodeData/testdata/bbb2_daylight.fp.txt -outpath @display -algorithm leader -minDistance 100 
+ * 	java -jar clustering.jar -fpfile ./HW1CodeData/testdata/bbb2_daylight.fp.txt -outpath @display -algorithm jarvis -numNeighbors 10 -commonNeighbors 3
+ * 
+ */
 public class Cluster {
 
-	public static String PARAM_GENERAL_TYPE = "general";
-	private static String MTX_FILE_TYPE = "-mtxfile";
-	private static String FP_FILE_TYPE = "-fpfile";
-
-	/**
-	 * java -jar -clustering.jar [-mtxfile|-fpfile] myfile.txt -outpath ./output -algorithm kmeans -k 3 -distanceMetric Euclidian -initialMethod initialIndices -initindices 2,3,5
-	 *  
-	 * @param args
-	 */
 	public static void main(String[] args) {
 
 		Map<String, Object> clusterParams =null;
@@ -45,13 +49,7 @@ public class Cluster {
         } catch(IOException ioe) {
             System.err.println("Error: Failed to load file " + clusterParams.get(InputParamEnum.IN_FILE.value()));
         } catch (Exception e){
-        	
-        	// For debugging purposes.
-        	StringWriter sw = new StringWriter();
-        	e.printStackTrace(new PrintWriter(sw));
-        	String exceptionAsString = sw.toString();
-        	
-        	System.err.println("Error: Something went terrible wrong!!! \n" + exceptionAsString);
+        	System.err.println("Error: Something went terrible wrong!!! \n" + e);
         }
 		
 		
@@ -69,14 +67,14 @@ public class Cluster {
 	public static IClusterAlgo getAlgorithm(Map<String, Object> clusterParams) {
 		
 		if ( clusterParams.get(InputParamEnum.IN_ALGO.value()).toString().equalsIgnoreCase("leader") ){
-			if ( clusterParams.get("-dataType").toString().equalsIgnoreCase("fp") ){
+			if ( clusterParams.get(InputParamEnum.IN_DATA_TYPE.value()).toString().equalsIgnoreCase(InputParamEnum.FP_TYPE) ){
 				return new LeaderAlgoFPImpl();
 				//return null;
 			}else{
 				return new LeaderAlgoMTXImpl();
 			}
 		}else{
-			if ( clusterParams.get("-dataType").toString().equalsIgnoreCase("fp") ){
+			if ( clusterParams.get(InputParamEnum.IN_DATA_TYPE.value()).toString().equalsIgnoreCase(InputParamEnum.FP_TYPE) ){
 				return new JarvisAlgoFPImpl();
 			}else{
 				return new JarvisAlgoMTXImpl();
@@ -98,11 +96,11 @@ public class Cluster {
 		
 		ClusteringResult results = null;
 		
-		if ( clusterParams.get("-dataType").toString().equalsIgnoreCase("fp") ){
+		if ( clusterParams.get(InputParamEnum.IN_DATA_TYPE.value()).toString().equalsIgnoreCase(InputParamEnum.FP_TYPE) ){
 			results = algorithm.cluster(((FingerprintReader)reader).getFingerprintMap(), clusterParams);
 		}else{
 			//results = algorithm.cluster(((MatrixReader)reader).getRowHeaders(),((MatrixReader)reader).getRawMatrix() , clusterParams);
-			clusterParams.put("rowlabels", ((MatrixReader)reader).getRowHeaders());
+			clusterParams.put(InputParamEnum.DEF_LABELS.value(), ((MatrixReader)reader).getRowHeaders());
 			results = algorithm.cluster(((MatrixReader)reader).getNormalizedMatrix() , clusterParams);
 		}
 		
@@ -121,16 +119,16 @@ public class Cluster {
 	public static IReader getReader(Map<String, Object> clusterParams) throws IOException{
 		
 		IReader reader = null;
-		Object inputFileName =  clusterParams.get(MTX_FILE_TYPE);
+		Object inputFileName =  clusterParams.get(InputParamEnum.MTX_FILE_TYPE);
 		
 		if (inputFileName==null){
 			// if the MTX parameter was not set then it must be a FPFile type
-			inputFileName =  clusterParams.get(FP_FILE_TYPE);
+			inputFileName =  clusterParams.get(InputParamEnum.FP_FILE_TYPE);
 			reader= new FingerprintReader();
-			clusterParams.put("-dataType", "fp");
+			clusterParams.put(InputParamEnum.IN_DATA_TYPE.value(), InputParamEnum.FP_TYPE);
 		}else{
 			reader= new MatrixReader();
-			clusterParams.put("-dataType", "mtx");
+			clusterParams.put(InputParamEnum.IN_DATA_TYPE.value(), InputParamEnum.MTX_TYPE);
 		}
 		
 		reader.loadData(inputFileName.toString());

@@ -1,5 +1,10 @@
 package edu.harvard.cscie99.clustering.algorithm;
 
+/**
+ *	Class to keep the distance to this specific row (rowId) 
+ *
+ *	Used with the Jarvis algorithm.
+ */
 public class DistanceRow implements Comparable<DistanceRow> {
 
 	private int rowId;
@@ -27,7 +32,6 @@ public class DistanceRow implements Comparable<DistanceRow> {
 
 	@Override
 	public int compareTo(DistanceRow o) {
-		// TODO Auto-generated method stub
 		
 		if(this.distance.doubleValue()>o.distance.doubleValue() ){
 			return 1;

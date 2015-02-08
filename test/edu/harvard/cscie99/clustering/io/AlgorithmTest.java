@@ -19,6 +19,8 @@ import org.junit.Test;
 
 import edu.harvard.cscie99.clustering.algorithm.JarvisAlgoFPImpl;
 import edu.harvard.cscie99.clustering.algorithm.JarvisAlgoMTXImpl;
+import edu.harvard.cscie99.clustering.algorithm.LeaderAlgoFPImpl;
+import edu.harvard.cscie99.clustering.algorithm.LeaderAlgoMTXImpl;
 import edu.harvard.cscie99.clustering.result.ClusteringResult;
 import edu.harvard.cscie99.clustering.util.CommandLineParam;
 import edu.harvard.cscie99.clustering.util.InputParamEnum;
@@ -106,11 +108,44 @@ public class AlgorithmTest {
 	public void tearDown() {
 	}
 
+	
+	/**
+	 * Test the command line input parameters parser.
+	 * Check whether required input parameters were missing
+	 * in the initial "args[]" array.
+	 * 
+	 */
+	@Test
+	public void testCommandLineParameters(){
+		
+		try {
+			
+			String[] args = new String[] { "-fpfile", "DATA_HARD_CODED",
+					"-outpath", "@display", "-algorithm", "jarvis",
+					"-dataType", "fp",
+					"-numNeighbors", "2", "-commonNeighbors", "1" };
+			
+			Map<String, Object> clusterParams = CommandLineParam.setInputParameters(args);
+		
+			assertTrue(true);  // all input parameters were set propertly
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false); // at least one input param was missing or has an invalid value
+		}
+		
+	}
+	
 
 	/**
-	 * Test the distance from 2 bitsets.
+	 * Test the distance between 2 bitsets.
 	 * It is called from cluster algorithm when 
 	 * fingerprint input is used. 
+	 * 
+	 * 	row1	2,4,5,10,12,19
+	 *  row2	2,4,9,12,13,20,25
+	 * 
+	 *  Distance = 7
 	 */
 	@Test
 	public void testFingerprintDistance(){
@@ -126,7 +161,7 @@ public class AlgorithmTest {
 		row1.set(10);
 		row1.set(12);
 		row1.set(19);
-		row1.set(26);
+		row1.set(26); // add extra row so the XOR operation works
 
 		// assign values to point2
 		row2.set(2);
@@ -136,7 +171,7 @@ public class AlgorithmTest {
 		row2.set(13);
 		row2.set(20);
 		row2.set(25);
-		row2.set(26);
+		row2.set(26); // add extra row so the XOR operation works
 
 		int distance = Utility.distance(row1,row2);
 
@@ -166,7 +201,7 @@ public class AlgorithmTest {
 
 
 	/**
-	 * Test the following fingerprint data using the following 
+	 * Test the Jarvis algorithm with fingerprint data using the following 
 	 * input parameters:
 	 * 
 	 * "-fpfile", "DATA_HARD_CODED", "-outpath", "@display", "-algorithm", "jarvis",	"-numNeighbors", "3", "-commonNeighbors", "2" 
@@ -191,7 +226,7 @@ public class AlgorithmTest {
 		JarvisAlgoFPImpl algo = new JarvisAlgoFPImpl();
 		
 		// Default/initial input parameters set.
-		String[] args = new String[] { "-fpfile", "./testdata/fp_test.txt",
+		String[] args = new String[] { "-fpfile", "DATA_HARD_CODED",
 				"-outpath", "@display", "-algorithm", "jarvis",
 				"-numNeighbors", "2", "-commonNeighbors", "1" };
 		Map<String, Object> clusterParams = CommandLineParam.setInputParameters(args);
@@ -210,58 +245,10 @@ public class AlgorithmTest {
 
 	}
 
+		
 	
 	/**
-	 * Test the following fingerprint data using the following 
-	 * input parameters:
-	 * 
-	 * "-fpfile", "DATA_HARD_CODED", "-outpath", "@display", "-algorithm", "jarvis",	"-numNeighbors", "4", "-commonNeighbors", "3" 
-	 *
-	 * 	DATA
-	 * 		ArticleA	1,3
-	 *		ArticleB	1,4
-	 *		ArticleC	2,3,5
-	 *		ArticleD	5,6
-	 *
-	 *	Validates the end results is:
-	 * 		ArticleA -- > 1
-	 *		ArticleB -- > 2
-	 *		ArticleC -- > 3
-	 *		ArticleD -- > 4
-	 *
-	 * @throws Exception 
-	 */
-	@Test
-	public void testJarvisFingerprintOuput2() throws Exception {
-
-		JarvisAlgoFPImpl algo = new JarvisAlgoFPImpl();
-
-		// Default/initial input parameters set.
-		String[] args = new String[] { "-fpfile", "./testdata/fp_test.txt",
-				"-outpath", "@display", "-algorithm", "jarvis",
-				"-numNeighbors", "4", "-commonNeighbors", "3" };
-		
-		Map<String, Object> clusterParams = CommandLineParam.setInputParameters(args);
-		clusterParams.put("-dataType", "fp");
-
-		ClusteringResult results = algo.cluster(dataFP, clusterParams);
-		
-		// Optional print results to console.
-		results.writeClusterLabels(clusterParams.get(InputParamEnum.IN_OUTPATH.value()).toString());
-		
-		Set<Integer> finalClusters = new HashSet<Integer>(results.getRowCluster());
-
-		assertTrue(finalClusters.size()==4);
-		assertTrue(finalClusters.contains(new Integer(1)));
-		assertTrue(finalClusters.contains(new Integer(2)));
-		assertTrue(finalClusters.contains(new Integer(3)));
-		assertTrue(finalClusters.contains(new Integer(4)));
-
-	}
-	
-	
-	/**
-	 * Test the following matrix data using the following 
+	 * Test the Jarvis algorithm with matrix data using the following 
 	 * input parameters:
 	 * 
 	 * "-mtxfile", "DATA_HARD_CODED", "-outpath", "@display", "-algorithm", "jarvis","-numNeighbors", "5", "-commonNeighbors", "3" 
@@ -300,8 +287,8 @@ public class AlgorithmTest {
 				"-numNeighbors", "5", "-commonNeighbors", "3" };
 		
 		Map<String, Object> clusterParams = CommandLineParam.setInputParameters(args);
-		clusterParams.put("-dataType", "mtx");
-		clusterParams.put("rowlabels",rowLabels);
+		clusterParams.put(InputParamEnum.IN_DATA_TYPE.value(), InputParamEnum.MTX_TYPE);
+		clusterParams.put(InputParamEnum.DEF_LABELS.value(),rowLabels);
 
 		ClusteringResult results = algo.cluster(dataMTX, clusterParams);
 		
@@ -314,4 +301,104 @@ public class AlgorithmTest {
 		
 	}
 
+	
+	/**
+	 * Test the Leader algorithm with matrix data using the following 
+	 * input parameters:
+	 * 
+	 * "-mtxfile", "DATA_HARD_CODED", "-outpath", "@display", "-algorithm", "leader","-minDistance", "6" 
+	 *
+	 * 	DATA
+	 * 				   C    V
+	 * 		row1 -- > 12 ,  6
+	 *		row2 -- > 15 , 16
+	 *		row3 -- > 18 , 17
+	 *		row4 -- > 10 ,  8
+	 *		row5 -- >  8 ,  7
+	 *		row6 -- >  9 ,  6
+	 *		row7 -- > 12 ,  9
+	 *		row8 -- > 20 , 18
+	 *
+	 *	Validates the end results is:
+	 * 		row1 -- > 1
+	 *		row2 -- > 2
+	 *		row3 -- > 2
+	 *		row4 -- > 1
+	 *		row5 -- > 1
+	 *		row6 -- > 1
+	 *		row7 -- > 1
+	 *		row8 -- > 2
+	 *
+	 * @throws Exception 
+	 */
+	@Test
+	public void testLeaderMatrixOuput1() throws Exception {
+
+		LeaderAlgoMTXImpl algo = new LeaderAlgoMTXImpl();
+
+		// Default/initial input parameters set.
+		String[] args = new String[] { "-mtxfile", "DATA_HARD_CODED",
+				"-outpath", "@display", "-algorithm", "leader",
+				"-minDistance", "6" };
+		
+		Map<String, Object> clusterParams = CommandLineParam.setInputParameters(args);
+		clusterParams.put(InputParamEnum.IN_DATA_TYPE.value(), InputParamEnum.MTX_TYPE);
+		clusterParams.put(InputParamEnum.DEF_LABELS.value(),rowLabels);
+
+		ClusteringResult results = algo.cluster(dataMTX, clusterParams);
+		
+		// Optional print results to console.
+		results.writeClusterLabels(clusterParams.get(InputParamEnum.IN_OUTPATH.value()).toString());
+		
+		Set<Integer> finalClusters = new HashSet<Integer>(results.getRowCluster());
+
+		assertTrue(finalClusters.size()==2);
+		
+	}
+	
+	
+	/**
+	 * Test the Leader algorithm with matrix data using the following 
+	 * input parameters:
+	 * 
+	 * "-fpfile", "DATA_HARD_CODED", "-outpath", "@display", "-algorithm", "leader","-minDistance", "2" 
+	 *
+	 * 	DATA
+	 * 		ArticleA	1,3
+	 *		ArticleB	1,4
+	 *		ArticleC	2,3,5
+	 *		ArticleD	5,6
+	 *
+	 *	Validates the end results is:
+	 * 		ArticleA -- > 1
+	 *		ArticleB -- > 1
+	 *		ArticleC -- > 2
+	 *		ArticleD -- > 3
+	 *
+	 * @throws Exception 
+	 */
+	@Test
+	public void testLeaderFingerpointOuput1() throws Exception {
+
+		LeaderAlgoFPImpl algo = new LeaderAlgoFPImpl();
+
+		// Default/initial input parameters set.
+		String[] args = new String[] { "-fpfile", "DATA_HARD_CODED",
+				"-outpath", "@display", "-algorithm", "leader",
+				"-minDistance", "2" };
+		
+		Map<String, Object> clusterParams = CommandLineParam.setInputParameters(args);
+		clusterParams.put(InputParamEnum.IN_DATA_TYPE.value(), InputParamEnum.FP_TYPE);
+
+		ClusteringResult results = algo.cluster(dataFP, clusterParams);
+		
+		// Optional print results to console.
+		results.writeClusterLabels(clusterParams.get(InputParamEnum.IN_OUTPATH.value()).toString());
+		
+		Set<Integer> finalClusters = new HashSet<Integer>(results.getRowCluster());
+
+		assertTrue(finalClusters.size()==3);
+		
+	}
+	
 }

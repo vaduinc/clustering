@@ -3,8 +3,14 @@ package edu.harvard.cscie99.clustering.algorithm;
 import java.util.List;
 import java.util.Map;
 
+import edu.harvard.cscie99.clustering.util.InputParamEnum;
 import edu.harvard.cscie99.clustering.util.Utility;
 
+/**
+ * Implementation of Leader algorithm using double[][] type
+ * for the input data
+ *
+ */
 public class LeaderAlgoMTXImpl extends LeaderAlgorithm<double[][]> {
 
 	@Override
@@ -20,7 +26,7 @@ public class LeaderAlgoMTXImpl extends LeaderAlgorithm<double[][]> {
 	@Override
 	public List<String> getRowLabels(double[][] data,Map<String, Object> clusterParams) {
 		
-		final List<String> rowKeys = (List<String>) clusterParams.get("rowlabels");
+		final List<String> rowKeys = (List<String>) clusterParams.get(InputParamEnum.DEF_LABELS.value());
 		
 		return rowKeys;
 	}

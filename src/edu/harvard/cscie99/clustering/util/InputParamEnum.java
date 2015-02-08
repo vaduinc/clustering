@@ -17,12 +17,21 @@ public enum InputParamEnum {
 	IN_FILE("file",true,null, "general" ),
 	IN_OUTPATH("-outpath",true,null, "general" ),
 	//IN_DIST_METRIC("-distanceMetric",false,null, "general" ),  // not in used yet
+	IN_DATA_TYPE("-dataType",false,"(fp|mtx)", "general" ),  	// deprecated after post saying file will be either -mtxfile or -fpfile
+	DEF_LABELS("-rowLabels",false,null, "general" ),
 	IN_NUM_NEIGH("-numNeighbors",true,"\\d{1,2}", "jarvis" ),
 	IN_COMM_NEIGH("-commonNeighbors", true,"\\d{1,2}", "jarvis" ),
 	IN_MIN_DIST("-minDistance",true,"^[0-9]\\d*(\\.\\d+)?$", "leader" ), 
 	;
-  
-    private final String value;
+
+	public static String PARAM_GENERAL_TYPE = "general";
+	public static String MTX_FILE_TYPE = "-mtxfile";
+	public static String FP_FILE_TYPE = "-fpfile";
+	public static String OUTPUT_DISPLAY ="@display";
+	public static String FP_TYPE = "fp";
+	public static String MTX_TYPE = "mtx";
+    
+	private final String value;
     private final Boolean required;
     private final String validation;
     private final String algo;
