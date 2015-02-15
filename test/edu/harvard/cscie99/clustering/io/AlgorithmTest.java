@@ -161,7 +161,6 @@ public class AlgorithmTest {
 		row1.set(10);
 		row1.set(12);
 		row1.set(19);
-		//row1.set(26); // add extra row so the XOR operation works
 
 		// assign values to point2
 		row2.set(2);
@@ -171,7 +170,6 @@ public class AlgorithmTest {
 		row2.set(13);
 		row2.set(20);
 		row2.set(25);
-		//row2.set(26); // add extra row so the XOR operation works
 
 		int distance = Utility.distance(row1,row2);
 
