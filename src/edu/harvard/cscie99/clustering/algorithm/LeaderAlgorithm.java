@@ -25,7 +25,7 @@ import edu.harvard.cscie99.clustering.util.InputParamEnum;
  */
 public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<E> {
 
-	final static int MIN = 0; //array position where the min. distance is stored.
+	final static int MIN_DISTANCE = 0; //array position where the min. distance is stored.
 	final static int MIN_CLS_IDX = 1;  //array position where the Cluster ID with the min. distance is stored.
 	
 	public abstract List<String> getRowLabels(E data,	Map<String, Object> clusterParams);
@@ -53,7 +53,7 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 		for (int idx=1; idx<rows;idx++){
 			// compute the distance for that row to the closest cluster
 			minPair  = this.calculateDistance(data, idx, clusters,rowKeys);
-			if (minPair[MIN].doubleValue()  <= minDistance ){
+			if (minPair[MIN_DISTANCE].doubleValue()  <= minDistance ){
 				// Assign the row to the given cluster
 				clusters.get(minPair[MIN_CLS_IDX].intValue()).add(idx);
 				results.addClusterToLabel(minPair[MIN_CLS_IDX].intValue()+1);
@@ -98,7 +98,7 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 		          
 		  }
 		  
-		  minPair[MIN] = minDist;
+		  minPair[MIN_DISTANCE] = minDist;
 		  minPair[MIN_CLS_IDX] = currentClusterIdx;
 		  
 		  return minPair ;
