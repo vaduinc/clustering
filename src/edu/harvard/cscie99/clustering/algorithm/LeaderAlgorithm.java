@@ -25,8 +25,6 @@ import edu.harvard.cscie99.clustering.util.InputParamEnum;
  */
 public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<E> {
 
-//	final static String MIN = "MIN";
-//	final static String MIN_CLS_IDX = "MIN_CLS_IDX";
 	final static int MIN = 0; //array position where the min. distance is stored.
 	final static int MIN_CLS_IDX = 1;  //array position where the Cluster ID with the min. distance is stored.
 	
