@@ -55,8 +55,8 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 			minPair  = this.calculateDistance(data, idx, clusters,rowKeys);
 			if (minPair[MIN_DISTANCE].doubleValue()  <= minDistance ){
 				// Assign the row to the given cluster
-				clusters.get(minPair[MIN_CLS_IDX].intValue()).add(idx);
-				results.addClusterToLabel(minPair[MIN_CLS_IDX].intValue()+1);
+				clusters.get(minPair[CLUSTER_ID_MIN_DISTANCE].intValue()).add(idx);
+				results.addClusterToLabel(minPair[CLUSTER_ID_MIN_DISTANCE].intValue()+1);
 			}else{
 				// Create a new cluster centered at the current row
 				List<Integer> newClustersRows = new ArrayList<Integer>();
@@ -99,7 +99,7 @@ public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<
 		  }
 		  
 		  minPair[MIN_DISTANCE] = minDist;
-		  minPair[MIN_CLS_IDX] = currentClusterIdx;
+		  minPair[CLUSTER_ID_MIN_DISTANCE] = currentClusterIdx;
 		  
 		  return minPair ;
 		
