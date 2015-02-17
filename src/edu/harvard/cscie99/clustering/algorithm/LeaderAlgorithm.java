@@ -26,7 +26,7 @@ import edu.harvard.cscie99.clustering.util.InputParamEnum;
 public abstract class LeaderAlgorithm<E extends Object> implements IClusterAlgo<E> {
 
 	final static int MIN_DISTANCE = 0; //array position where the min. distance is stored.
-	final static int MIN_CLS_IDX = 1;  //array position where the Cluster ID with the min. distance is stored.
+	final static int CLUSTER_ID_MIN_DISTANCE = 1;  //array position where the Cluster ID with the min. distance is stored.
 	
 	public abstract List<String> getRowLabels(E data,	Map<String, Object> clusterParams);
 	public abstract Number getDistance(E data, List<String> rowKeys , int fromIdx, int toIdx);
