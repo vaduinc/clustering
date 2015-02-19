@@ -1,6 +1,6 @@
 CSCI E99
 	Spring 2015
-	Feb - 8 - 2015
+	Feb - 19 - 2015
 	HW 01 - part 1
 	
 Notes:
