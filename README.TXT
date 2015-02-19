@@ -1,4 +1,3 @@
-
 CSCI E99
 	Spring 2015
 	Feb - 8 - 2015
