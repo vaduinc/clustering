@@ -34,10 +34,11 @@ public class ClusteringResult {
 			System.out.println(this.toString());	
 		}else{
 		
+			BufferedWriter bWriter =null;
 			try {
 			   	  FileWriter outFile = new FileWriter(outputFilename);  
 			
-	              BufferedWriter bWriter = new BufferedWriter(outFile);  
+	              bWriter = new BufferedWriter(outFile);  
 	  
 				  int idx = 0;
 		          for (String label :rowLabels){
@@ -47,6 +48,10 @@ public class ClusteringResult {
 	  
 	        } catch (IOException e) {  
 	            e.printStackTrace();  
+	        } finally {
+	            if (bWriter != null) {
+	            	bWriter.close();
+	            }
 	        }
 		}	
 	    		
